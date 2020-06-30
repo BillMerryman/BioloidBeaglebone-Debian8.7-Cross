@@ -8,11 +8,16 @@ OBJDIR = $(CURDIR)
 
 # OpenCV include path
 
-OPENCV_INC = -IC:\BBGCC\arm-linux-gnueabihf\sysroot\usr\local\include -IC:\BBGCC\arm-linux-gnueabihf\sysroot\usr\local\include\opencv -IC:\BBGCC\arm-linux-gnueabihf\sysroot\usr\local\include\opencv2 
+OPENCV_INC = -ID:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\local\include -ID:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\local\include\opencv -ID:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\local\include\opencv2 
 
 # OpenCV library path
 
-OPENCV_LIBPATH = -LC:\BBGCC\arm-linux-gnueabihf\sysroot\usr\local\lib
+OPENCV_LIBPATH = -LD:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\local\lib
+
+OTHER_DEPENDENCIES = -Wl,-rpath,D:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\lib \
+					-Wl,-rpath,D:\BBGCC8.7\arm-linux-gnueabihf\sysroot\usr\lib\arm-linux-gnueabihf \
+					-Wl,-rpath,D:\BBGCC8.7\arm-linux-gnueabihf\sysroot\lib \
+					-Wl,-rpath,D:\BBGCC8.7\arm-linux-gnueabihf\sysroot\lib\arm-linux-gnueabihf
 
 # OpenCV libraries
 
@@ -53,11 +58,11 @@ COBJ = \
  	visionManager.o
 
 # gcc binaries to use
-CC = C:\BBGCC\bin\arm-linux-gnueabihf-gcc.exe
-CP = C:\BBGCC\bin\arm-linux-gnueabihf-g++.exe
-LD = C:\BBGCC\bin\arm-linux-gnueabihf-g++.exe
+CC = D:\BBGCC8.7\bin\arm-linux-gnueabihf-gcc.exe
+CP = D:\BBGCC8.7\bin\arm-linux-gnueabihf-g++.exe
+LD = D:\BBGCC8.7\bin\arm-linux-gnueabihf-g++.exe
 
-# rm is part of yagarto-tools
+# rm 
 SHELL = cmd
 REMOVE = rm -f
 
@@ -84,7 +89,7 @@ all: pru_bin $(PROJECT)
 $(PROJECT): $(COBJ) $(CPPOBJ)
 	@echo $(MSG_EMPTYLINE)
 	@echo $(MSG_LINKING)
-	$(LD) -o $@ $^ $(CFLAGS) $(OPENCV_LIBPATH) $(OPENCV_LIBS) -lpthread
+	$(LD) -o $@ $^ $(CFLAGS) $(OPENCV_LIBPATH) $(OPENCV_LIBS) -lpthread $(OTHER_DEPENDENCIES)
 	@echo $(MSG_EMPTYLINE)
 	@echo $(MSG_SUCCESS) $(PROJECT)
 
@@ -100,13 +105,14 @@ $(CPPOBJ): %.o: %.cpp
 	$(CP) -c -o $@ $< $(CFLAGS) $(OPENCV_INC)
 
 clean: pru_clean
-	$(REMOVE) ./*.o ./PRUInteropDataLocation.h
+	del *.o
+	$(REMOVE) ./PRUInteropDataLocation.h
 	$(REMOVE) $(PROJECT)
 	
 pru_bin:
-	make TARGET_MODE=Release -C PRU_0
-	make TARGET_MODE=Release -C PRU_1
+	make -C PRU_0 TARGET_MODE=Release
+	make -C PRU_1 TARGET_MODE=Release
 
 pru_clean:
-	MAKE -C PRU_0 clean
+	make -C PRU_0 clean
 	make -C PRU_1 clean
